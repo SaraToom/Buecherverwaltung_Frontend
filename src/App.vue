@@ -1,16 +1,28 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import BuchItem from './components/BuchItem.vue';
 
-// Simuliert das Backend
-const buecherListe = ref([
-  { id: 1, titel: 'Harry Potter und der Stein der Weisen', autor: 'J.K. Rowling', genre: 'Fantasy', isRead: true
-   },
-  { id: 2, titel: '11 Minuten', autor: 'Paulo Coelho', genre: 'Roman', isRead: false },
-  { id: 3, titel: 'Stolz und Vorurteil', autor: 'Jane Austen', genre: 'Klassiker', isRead: false },
-  { id: 4, titel: 'The Housemaid', autor: 'Freida McFadden', genre: 'Thriller', isRead: true }
-])
+const buecherListe = ref([])
 
+// Holt URL von Render 
+const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8080'
+
+const ladeBuecherVonBackend = async () => {
+  try {
+    // Ruft Spring Boot Controller auf und lädt Bücherliste
+    const response = await fetch(`${backendUrl}/books`)
+    if (!response.ok) {
+      throw new Error('Netzwerk-Antwort war nicht ok')
+    }
+    buecherListe.value = await response.json()
+  } catch (error) {
+    console.error('Fehler beim Laden der Bücher aus dem Backend:', error)
+  }
+}
+
+onMounted(() => {
+  ladeBuecherVonBackend()
+})
 </script>
 
 <template>
@@ -20,6 +32,10 @@ const buecherListe = ref([
     </header>
 
     <main>
+      <p v-if="buecherListe.length === 0" style="text-align: center;">
+        Lade Bücher aus dem Cloud-Backend... (Falls das Backend schläft, kann das kurz dauern)
+      </p>
+
       <BuchItem 
         v-for="buch in buecherListe" 
         :key="buch.id" 
