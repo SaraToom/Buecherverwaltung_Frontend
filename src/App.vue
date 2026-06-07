@@ -3,14 +3,15 @@ import { ref, onMounted } from 'vue'
 import BuchItem from './components/BuchItem.vue';
 
 const buecherListe = ref([])
+
+// Eingabefelder im Formular
 const neuerTitel = ref('')
 const neuerAutor = ref('')
 const neuesGenre = ref('')
 
-// Holt URL von Render 
 const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8080'
 
-// Bücher laden
+// GET-Route: Bücher vom Backend laden
 const ladeBuecherVonBackend = async () => {
   try {
     const response = await fetch(`${backendUrl}/books`)
@@ -18,46 +19,53 @@ const ladeBuecherVonBackend = async () => {
       throw new Error('Netzwerk-Antwort war nicht ok')
     }
     buecherListe.value = await response.json()
+    console.log("Erfolgreich geladene Bücher:", buecherListe.value)
   } catch (error) {
     console.error('Fehler beim Laden der Bücher aus dem Backend:', error)
   }
 }
 
-//Neues Buch hinzufügen
+// POST-Route: Neues Buch hinzufügen
 const speichereBuchInBackend = async () => {
+  console.log("Eingegebener Titel:", neuerTitel.value)
+  console.log("Eingegebener Autor:", neuerAutor.value)
+
   if (!neuerTitel.value || !neuerAutor.value) {
-    alert('Bitte mindestens Titel und Autor ausfüllen!')
+    alert('Bitte mindestens Buchtitel und Autor ausfüllen!')
     return
   }
 
   const neuesBuch = {
-    title: neuerTitel.value,
-    author: neuerAutor.value,
-    genre: neuesGenre.value,
-    isRead: false
+    title: String(neuerTitel.value),  // Sicherstellen, dass es als Text/String gesendet wird
+    author: String(neuerAutor.value), // Sicherstellen, dass es als Text/String gesendet wird
+    genre: String(neuesGenre.value),
+    read: false
   }
+
+  console.log("Sende folgendes JSON ans Backend:", JSON.stringify(neuesBuch))
 
   try {
     const response = await fetch(`${backendUrl}/books`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
       },
       body: JSON.stringify(neuesBuch)
     })
 
     if (response.ok) {
-      // Eingabefelder wieder leeren
+      console.log("Buch erfolgreich im Backend gespeichert!")
+      // Formularfelder leeren
       neuerTitel.value = ''
       neuerAutor.value = ''
       neuesGenre.value = ''
-      // Liste neu laden, damit das neue Buch sofort erscheint
-      ladeBuecherVonBackend()
+      await ladeBuecherVonBackend()
     } else {
-      console.error('Fehler beim Speichern im Backend')
+      console.error('Das Backend hat den Speicherbefehl abgelehnt. Status:', response.status)
     }
   } catch (error) {
-    console.error('Netzwerkfehler beim Absenden:', error)
+    console.error('Netzwerkfehler beim Absenden an das Backend:', error)
   }
 }
 
@@ -93,10 +101,10 @@ onMounted(() => {
       <BuchItem 
         v-for="buch in buecherListe" 
         :key="buch.id" 
-        :titel="buch.titel" 
-        :autor="buch.autor"
+        :titel="buch.title"   
+        :autor="buch.author"  
         :genre="buch.genre"
-        :isRead="buch.isRead"
+        :isRead="buch.read"   
       />
     </main>
   </div>
