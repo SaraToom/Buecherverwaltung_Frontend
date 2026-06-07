@@ -11,7 +11,7 @@ const neuesGenre = ref('')
 
 const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8080'
 
-// GET-Route: Bücher vom Backend laden
+// Bücher vom Backend laden
 const ladeBuecherVonBackend = async () => {
   try {
     const response = await fetch(`${backendUrl}/books`)
@@ -25,41 +25,35 @@ const ladeBuecherVonBackend = async () => {
   }
 }
 
-// POST-Route: Neues Buch hinzufügen
+// Neues Buch hinzufügen
 const speichereBuchInBackend = async () => {
-  console.log("Eingegebener Titel:", neuerTitel.value)
-  console.log("Eingegebener Autor:", neuerAutor.value)
-
-  if (!neuerTitel.value || !neuerAutor.value) {
+  if (!neuerTitel.value.trim() || !neuerAutor.value.trim()) {
     alert('Bitte mindestens Buchtitel und Autor ausfüllen!')
     return
   }
 
   const neuesBuch = {
-    title: String(neuerTitel.value),  // Sicherstellen, dass es als Text/String gesendet wird
-    author: String(neuerAutor.value), // Sicherstellen, dass es als Text/String gesendet wird
-    genre: String(neuesGenre.value),
+    title: neuerTitel.value,
+    author: neuerAutor.value,
+    genre: neuesGenre.value,
     read: false
   }
-
-  console.log("Sende folgendes JSON ans Backend:", JSON.stringify(neuesBuch))
 
   try {
     const response = await fetch(`${backendUrl}/books`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify(neuesBuch)
     })
 
     if (response.ok) {
-      console.log("Buch erfolgreich im Backend gespeichert!")
       // Formularfelder leeren
       neuerTitel.value = ''
       neuerAutor.value = ''
       neuesGenre.value = ''
+      // Liste neu laden
       await ladeBuecherVonBackend()
     } else {
       console.error('Das Backend hat den Speicherbefehl abgelehnt. Status:', response.status)
@@ -104,7 +98,7 @@ onMounted(() => {
         :titel="buch.title"   
         :autor="buch.author"  
         :genre="buch.genre"
-        :isRead="buch.read"   
+        :isRead="buch.read !== undefined ? buch.read : buch.isRead"   
       />
     </main>
   </div>
@@ -128,7 +122,6 @@ h1 {
 #app {
   background-color: #EBDDCC;
 }
-/* Einfaches Styling für das neue Formular */
 .form-section {
   background: white;
   padding: 15px;
