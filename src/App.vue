@@ -36,7 +36,8 @@ const speichereBuchInBackend = async () => {
     title: neuerTitel.value,
     author: neuerAutor.value,
     genre: neuesGenre.value,
-    read: false
+    read: false,
+    isRead: false
   }
 
   try {
