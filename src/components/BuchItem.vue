@@ -1,6 +1,6 @@
 <script setup>
 // Props für die Buchinformationen
-defineProps(['id', 'titel', 'autor', 'genre', 'releaseYear', 'stars', 'review', 'isFavorite', 'status'])
+defineProps(['id', 'titel', 'autor', 'genre', 'releaseYear', 'stars', 'review', 'isFavorite', 'status', 'bookList'])
 defineEmits(['delete-buch', 'toggle-favorite'])
 </script>
 
@@ -13,6 +13,7 @@ defineEmits(['delete-buch', 'toggle-favorite'])
     <p><strong>Autor:</strong> {{ autor }}</p>
     <p><strong>Genre:</strong> {{ genre }} ({{ releaseYear }})</p>
     <p><strong>Status:</strong> {{ status }}</p>
+    <p v-if="bookList"><strong>Liste:</strong> <span class="list-badge">{{ bookList.name }}</span></p>
     <p><strong>Bewertung:</strong> {{ stars }} ⭐</p>
     <p v-if="review"><em>"{{ review }}"</em></p>
     
@@ -61,5 +62,16 @@ defineEmits(['delete-buch', 'toggle-favorite'])
 .btn-fav {
   background-color: white;
   color: #D5B895;
+}
+.list-badge {
+  background-color: rgba(255, 255, 255, 0.25);
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: bold;
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  display: inline-block;
+  margin-left: 5px;
 }
 </style>
