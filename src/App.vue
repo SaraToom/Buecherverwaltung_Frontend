@@ -48,6 +48,8 @@ const speichereBuchInBackend = async () => {
     isFavorite: neuesIsFavorite.value
   }
 
+console.log('Sende neues Buch an Backend:', neuesBuch)
+
   try {
     const response = await fetch(`${backendUrl}/books`, {
       method: 'POST',
@@ -57,7 +59,10 @@ const speichereBuchInBackend = async () => {
       body: JSON.stringify(neuesBuch)
     })
 
+    console.log('Antwort vom Backend:', response.status)
+
     if (response.ok) {
+      console.log('Buch erfolgreich gespeichert:', response.status)
       // Formularfelder leeren
       neuerTitel.value = ''
       neuerAutor.value = ''
