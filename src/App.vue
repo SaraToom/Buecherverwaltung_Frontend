@@ -75,7 +75,9 @@ console.log('Sende neues Buch an Backend:', neuesBuch)
       // Liste neu laden
       await ladeBuecherVonBackend()
     } else {
-      console.error('Das Backend hat den Speicherbefehl abgelehnt. Status:', response.status)
+      const errorText = await response.text()
+      console.error('Das Backend hat den Speicherbefehl abgelehnt. Status:', response.status, 'Nachricht:',errorText)
+      alert('Fehler beim Speichern des Buches: ' + errorText)
     }
   } catch (error) {
     console.error('Netzwerkfehler beim Absenden an das Backend:', error)
