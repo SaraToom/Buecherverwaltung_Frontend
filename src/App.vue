@@ -19,6 +19,11 @@ const ausgewaehltesListId = ref('') // Für das Zuweisen beim Erstellen
 const ausgewaehlteListeId = ref(null) // null = Alle Bücher
 const neueListeName = ref('')
 
+// Suche
+const suchbegriff = ref('')
+const zeigeFilterMenu = ref(false)
+const suchFilter = ref({ titel: true, autor: true, genre: true })
+
 const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8080'
 
 // Bücher vom Backend laden
@@ -105,12 +110,27 @@ const getBookCountForList = (listId) => {
   return buecherListe.value.filter(b => b.bookList && b.bookList.id === listId).length
 }
 
-// Bücher filtern basierend auf ausgewählter Liste
+// Bücher filtern basierend auf ausgewählter Liste UND Suchbegriff
 const gefilterteBuecher = computed(() => {
-  if (ausgewaehlteListeId.value === null) {
-    return buecherListe.value
+  let result = buecherListe.value
+
+  // 1. Nach Regal filtern
+  if (ausgewaehlteListeId.value !== null) {
+    result = result.filter(b => b.bookList && b.bookList.id === ausgewaehlteListeId.value)
   }
-  return buecherListe.value.filter(b => b.bookList && b.bookList.id === ausgewaehlteListeId.value)
+
+  // 2. Nach Suchbegriff filtern
+  const q = suchbegriff.value.trim().toLowerCase()
+  if (q) {
+    result = result.filter(b => {
+      const inTitel  = suchFilter.value.titel  && b.title?.toLowerCase().includes(q)
+      const inAutor  = suchFilter.value.autor  && b.author?.toLowerCase().includes(q)
+      const inGenre  = suchFilter.value.genre  && b.genre?.toLowerCase().includes(q)
+      return inTitel || inAutor || inGenre
+    })
+  }
+
+  return result
 })
 
 // Neues Buch hinzufügen
@@ -222,6 +242,39 @@ onMounted(() => {
   <div class="container">
     <header>
       <h1>Meine Bücherverwaltung</h1>
+
+      <!-- Suchleiste oben rechts -->
+      <div class="search-bar-wrapper">
+        <div class="search-input-row">
+          <div class="search-icon-btn" @click="zeigeFilterMenu = !zeigeFilterMenu" title="Suchfilter">
+            🔍
+          </div>
+          <input
+            v-model="suchbegriff"
+            type="text"
+            class="search-input"
+            placeholder="Buch suchen..."
+            @keyup.escape="suchbegriff = ''"
+          />
+          <button v-if="suchbegriff" class="search-clear" @click="suchbegriff = ''" title="Suche löschen">✕</button>
+        </div>
+
+        <!-- Filter-Popup -->
+        <transition name="fade">
+          <div v-if="zeigeFilterMenu" class="filter-popup">
+            <p class="filter-title">Suchen in:</p>
+            <label class="filter-option">
+              <input type="checkbox" v-model="suchFilter.titel" /> Buchtitel
+            </label>
+            <label class="filter-option">
+              <input type="checkbox" v-model="suchFilter.autor" /> Autor
+            </label>
+            <label class="filter-option">
+              <input type="checkbox" v-model="suchFilter.genre" /> Genre
+            </label>
+          </div>
+        </transition>
+      </div>
     </header>
 
     <div class="app-layout">
@@ -299,7 +352,7 @@ onMounted(() => {
         <hr />
 
         <h2>
-          {{ ausgewaehlteListeId === null ? 'Deine Bücher' : 'Bücher in Liste: ' + listen.find(l => l.id === ausgewaehlteListeId)?.name }}
+          {{ ausgewaehlteListeId === null ? 'Deine Bücher' : 'Bücher im Regal: ' + listen.find(l => l.id === ausgewaehlteListeId)?.name }}
         </h2>
         
         <p v-if="gefilterteBuecher.length === 0" style="text-align: center; color: #666; margin-top: 20px;">
@@ -334,12 +387,17 @@ onMounted(() => {
   padding: 20px;
 }
 header {
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   margin-bottom: 30px;
+  gap: 16px;
 }
 h1 {
   color: #D5B895;
-   -webkit-text-stroke: 0.9px white;
+  -webkit-text-stroke: 0.9px white;
+  white-space: nowrap;
+  margin: 0;
 }
 #app {
   background-color: #EBDDCC;
@@ -514,5 +572,98 @@ hr {
   margin: 25px 0;
   border: 0;
   border-top: 1px solid #ccc;
+}
+
+/* Suchleiste */
+.search-bar-wrapper {
+  position: relative;
+  width: 280px;
+  flex-shrink: 0;
+}
+.search-input-row {
+  display: flex;
+  align-items: center;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.07);
+  overflow: visible;
+}
+.search-icon-btn {
+  padding: 0 12px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.15s ease;
+  line-height: 1;
+}
+.search-icon-btn:hover {
+  transform: scale(1.15);
+}
+.search-input {
+  flex: 1;
+  border: none !important;
+  outline: none !important;
+  padding: 10px 4px;
+  font-size: 0.95rem;
+  background: transparent;
+}
+.search-clear {
+  background: none;
+  border: none;
+  padding: 0 12px;
+  font-size: 1rem;
+  color: #aaa;
+  cursor: pointer;
+  line-height: 1;
+}
+.search-clear:hover {
+  color: #ff4d4d;
+}
+
+/* Filter-Popup */
+.filter-popup {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 12px 16px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  z-index: 100;
+  min-width: 160px;
+}
+.filter-title {
+  margin: 0 0 8px 0;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #999;
+  font-weight: bold;
+}
+.filter-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 0;
+  font-size: 0.9rem;
+  cursor: pointer;
+  color: #333;
+}
+.filter-option input[type="checkbox"] {
+  accent-color: #D5B895;
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+}
+
+/* Fade-Animation für Filter-Popup */
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+.fade-enter-from, .fade-leave-to {
+  opacity: 0;
+  transform: translateY(-4px);
 }
 </style>
