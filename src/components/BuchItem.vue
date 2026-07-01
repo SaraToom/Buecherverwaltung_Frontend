@@ -1,6 +1,6 @@
 <script setup>
 // Props für die Buchinformationen
-defineProps(['id', 'titel', 'autor', 'genre', 'releaseYear', 'stars', 'review', 'isFavorite', 'status', 'bookList'])
+defineProps(['id', 'titel', 'autor', 'genre', 'releaseYear', 'stars', 'review', 'isFavorite', 'bookList'])
 defineEmits(['delete-buch', 'toggle-favorite'])
 </script>
 
@@ -12,8 +12,7 @@ defineEmits(['delete-buch', 'toggle-favorite'])
     </div>
     <p><strong>Autor:</strong> {{ autor }}</p>
     <p><strong>Genre:</strong> {{ genre }} ({{ releaseYear }})</p>
-    <p><strong>Status:</strong> {{ status }}</p>
-    <p v-if="bookList"><strong>Liste:</strong> <span class="list-badge">{{ bookList.name }}</span></p>
+    <p v-if="bookList"><strong>Regal:</strong> <span class="list-badge">{{ bookList.name }}</span></p>
     <p><strong>Bewertung:</strong> {{ stars }} ⭐</p>
     <p v-if="review"><em>"{{ review }}"</em></p>
     

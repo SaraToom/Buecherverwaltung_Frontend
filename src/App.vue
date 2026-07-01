@@ -12,7 +12,6 @@ const neuesGenre = ref('')
 const neuesReleaseYear = ref(new Date().getFullYear())
 const neueStars = ref(5)
 const neuesReview = ref('')
-const neuerStatus = ref('Ungelesen')
 const neuesIsFavorite = ref(false)
 const ausgewaehltesListId = ref('') // Für das Zuweisen beim Erstellen
 
@@ -130,7 +129,6 @@ const speichereBuchInBackend = async () => {
     releaseYear: neuesReleaseYear.value,
     stars: neueStars.value,
     review: neuesReview.value,
-    status: neuerStatus.value,
     isFavorite: neuesIsFavorite.value,
     bookList: listObject
   }
@@ -157,7 +155,6 @@ const speichereBuchInBackend = async () => {
       neuesReleaseYear.value = new Date().getFullYear()
       neueStars.value = 5
       neuesReview.value = ''
-      neuerStatus.value = 'Ungelesen'
       neuesIsFavorite.value = false
       ausgewaehltesListId.value = ''
       // Liste neu laden
@@ -279,12 +276,6 @@ onMounted(() => {
               <input v-model.number="neuesReleaseYear" type="number" placeholder="Jahr" style="flex: 1" />
             </div>
             <div class="row">
-              <select v-model="neuerStatus">
-                <option>Ungelesen</option>
-                <option>Wird gelesen</option>
-                <option>Abgebrochen</option>
-                <option>Gelesen</option>
-              </select>
               <select v-model.number="neueStars">
                 <option v-for="n in 5" :key="n" :value="n">{{ n }} Sterne</option>
               </select>
@@ -293,7 +284,7 @@ onMounted(() => {
               <select v-model="ausgewaehltesListId" class="select-list">
                 <option value="">(Keinem Regal zugeordnet)</option>
                 <option v-for="list in listen" :key="list.id" :value="list.id">
-                  Regal: {{ list.name }}
+                  {{ list.name }}
                 </option>
               </select>
             </div>
@@ -326,7 +317,6 @@ onMounted(() => {
           :stars="buch.stars"
           :review="buch.review"
           :isFavorite="buch.isFavorite"
-          :status="buch.status"
           :bookList="buch.bookList"
           @delete-buch="deleteBuchVonBackend(buch.id)"
           @toggle-favorite="toggleFavoritInBackend(buch)"
