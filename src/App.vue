@@ -8,6 +8,11 @@ const buecherListe = ref([])
 const neuerTitel = ref('')
 const neuerAutor = ref('')
 const neuesGenre = ref('')
+const neuesReleaseYear = ref(new Date().getFullYear())
+const neueStars = ref(5)
+const neuesReview = ref('')
+const neuerStatus = ref('Ungelesen')
+const neuesIsFavorite = ref(false)
 
 const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8080'
 
@@ -36,8 +41,11 @@ const speichereBuchInBackend = async () => {
     title: neuerTitel.value,
     author: neuerAutor.value,
     genre: neuesGenre.value,
-    read: false,
-    isRead: false
+    releaseYear: neuesReleaseYear.value,
+    stars: neueStars.value,
+    review: neuesReview.value,
+    status: neuerStatus.value,
+    isFavorite: neuesIsFavorite.value
   }
 
   try {
@@ -54,6 +62,11 @@ const speichereBuchInBackend = async () => {
       neuerTitel.value = ''
       neuerAutor.value = ''
       neuesGenre.value = ''
+      neuesReleaseYear.value = new Date().getFullYear()
+      neueStars.value = 5
+      neuesReview.value = ''
+      neuerStatus.value = 'Ungelesen'
+      neuesIsFavorite.value = false
       // Liste neu laden
       await ladeBuecherVonBackend()
     } else {
@@ -61,6 +74,49 @@ const speichereBuchInBackend = async () => {
     }
   } catch (error) {
     console.error('Netzwerkfehler beim Absenden an das Backend:', error)
+  }
+}
+
+// Buch löschen
+const deleteBuchVonBackend = async (id) => {
+  if (!confirm('Möchtest du dieses Buch wirklich löschen?')) return
+
+  try {
+    const response = await fetch(`${backendUrl}/books/${id}`, {
+      method: 'DELETE'
+    })
+    if (response.ok) {
+      await ladeBuecherVonBackend()
+    } else {
+      console.error('Fehler beim Löschen des Buches:', response.status)
+    }
+  } catch (error) {
+    console.error('Netzwerkfehler beim Löschen:', error)
+  }
+}
+
+// Favoriten-Status umschalten
+const toggleFavoritInBackend = async (buch) => {
+  const updatedBuch = { 
+    ...buch, 
+    isFavorite: !buch.isFavorite 
+  }
+
+  try {
+    const response = await fetch(`${backendUrl}/books/${buch.id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(updatedBuch)
+    })
+    if (response.ok) {
+      await ladeBuecherVonBackend()
+    } else {
+      console.error('Fehler beim Aktualisieren des Favoriten-Status:', response.status)
+    }
+  } catch (error) {
+    console.error('Netzwerkfehler beim Aktualisieren:', error)
   }
 }
 
@@ -81,7 +137,25 @@ onMounted(() => {
         <div class="form-group">
           <input v-model="neuerTitel" type="text" placeholder="Buchtitel" />
           <input v-model="neuerAutor" type="text" placeholder="Autor" />
-          <input v-model="neuesGenre" type="text" placeholder="Genre" />
+          <div class="row">
+            <input v-model="neuesGenre" type="text" placeholder="Genre" style="flex: 2" />
+            <input v-model.number="neuesReleaseYear" type="number" placeholder="Jahr" style="flex: 1" />
+          </div>
+          <div class="row">
+            <select v-model="neuerStatus">
+              <option>Ungelesen</option>
+              <option>Wird gelesen</option>
+              <option>Abgebrochen</option>
+              <option>Gelesen</option>
+            </select>
+            <select v-model.number="neueStars">
+              <option v-for="n in 5" :key="n" :value="n">{{ n }} Sterne</option>
+            </select>
+          </div>
+          <textarea v-model="neuesReview" placeholder="Deine Rezension..."></textarea>
+          <label class="checkbox-label">
+            <input type="checkbox" v-model="neuesIsFavorite" /> Favorit?
+          </label>
           <button @click="speichereBuchInBackend">Buch speichern 💾</button>
         </div>
       </section>
@@ -96,10 +170,17 @@ onMounted(() => {
       <BuchItem 
         v-for="buch in buecherListe" 
         :key="buch.id" 
+        :id="buch.id"
         :titel="buch.title"   
         :autor="buch.author"  
         :genre="buch.genre"
-        :isRead="buch.read !== undefined ? buch.read : buch.isRead"   
+        :releaseYear="buch.releaseYear"
+        :stars="buch.stars"
+        :review="buch.review"
+        :isFavorite="buch.isFavorite"
+        :status="buch.status"
+        @delete-buch="deleteBuchVonBackend(buch.id)"
+        @toggle-favorite="toggleFavoritInBackend(buch)"
       />
     </main>
   </div>
@@ -135,10 +216,24 @@ h1 {
   flex-direction: column;
   gap: 10px;
 }
-.form-group input {
+.row {
+  display: flex;
+  gap: 10px;
+}
+.form-group input, .form-group select, .form-group textarea {
   padding: 8px;
   border: 1px solid #ccc;
   border-radius: 4px;
+}
+.form-group textarea {
+  height: 60px;
+  resize: vertical;
+}
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.9rem;
 }
 .form-group button {
   padding: 10px;
