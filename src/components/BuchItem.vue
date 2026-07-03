@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 // Props für die Buchinformationen
 defineProps(['id', 'titel', 'autor', 'genre', 'releaseYear', 'stars', 'review', 'isFavorite', 'bookList'])
 defineEmits(['delete-buch', 'toggle-favorite'])

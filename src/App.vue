@@ -1,9 +1,26 @@
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import BuchItem from './components/BuchItem.vue';
 
-const buecherListe = ref([])
-const listen = ref([])
+interface BookList {
+  id: number
+  name: string
+}
+
+interface Buch {
+  id: number
+  title: string
+  author: string
+  genre: string
+  releaseYear: number
+  stars: number
+  review: string
+  isFavorite: boolean
+  bookList: BookList | null
+}
+
+const buecherListe = ref<Buch[]>([])
+const listen = ref<BookList[]>([])
 
 // Eingabefelder im Formular
 const neuerTitel = ref('')
@@ -16,7 +33,7 @@ const neuesIsFavorite = ref(false)
 const ausgewaehltesListId = ref('') // Für das Zuweisen beim Erstellen
 
 // Listenauswahl in der Sidebar für die Filterung
-const ausgewaehlteListeId = ref(null) // null = Alle Bücher
+const ausgewaehlteListeId = ref<number | null>(null) // null = Alle Bücher
 const neueListeName = ref('')
 
 // Suche
@@ -84,7 +101,7 @@ const speichereListeInBackend = async () => {
 }
 
 // Liste löschen
-const deleteListeVonBackend = async (id) => {
+const deleteListeVonBackend = async (id: number) => {
   if (!confirm('Möchtest du diese Liste wirklich löschen? Die zugeordneten Bücher bleiben erhalten.')) return
 
   try {
@@ -106,7 +123,7 @@ const deleteListeVonBackend = async (id) => {
 }
 
 // Buch count ermitteln
-const getBookCountForList = (listId) => {
+const getBookCountForList = (listId: number) => {
   return buecherListe.value.filter(b => b.bookList && b.bookList.id === listId).length
 }
 
@@ -190,7 +207,7 @@ const speichereBuchInBackend = async () => {
 }
 
 // Buch löschen
-const deleteBuchVonBackend = async (id) => {
+const deleteBuchVonBackend = async (id: number) => {
   if (!confirm('Möchtest du dieses Buch wirklich löschen?')) return
 
   try {
@@ -208,7 +225,7 @@ const deleteBuchVonBackend = async (id) => {
 }
 
 // Favoriten-Status umschalten
-const toggleFavoritInBackend = async (buch) => {
+const toggleFavoritInBackend = async (buch: Buch) => {
   const updatedBuch = { 
     ...buch, 
     isFavorite: !buch.isFavorite 
