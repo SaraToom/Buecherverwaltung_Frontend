@@ -2,6 +2,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import BuchItem from '../components/BuchItem.vue'
+import StarRating from '../components/StarRating.vue'
 import { useAuth } from '../composables/useAuth'
 
 const router = useRouter()
@@ -31,7 +32,7 @@ const neuerTitel = ref('')
 const neuerAutor = ref('')
 const neuesGenre = ref('')
 const neuesReleaseYear = ref(new Date().getFullYear())
-const neueStars = ref(5)
+const neueStars = ref(0)
 const neuesReview = ref('')
 const neuesIsFavorite = ref(false)
 const ausgewaehltesListId = ref('')
@@ -59,7 +60,7 @@ async function authFetch(url: string, options: RequestInit = {}): Promise<Respon
       ...(options.headers as Record<string, string> ?? {}),
     },
   })
-  if (response.status === 401) {
+  if (response.status === 401 || response.status === 403) {
     clearAuth()
     router.push('/login')
     throw new Error('Sitzung abgelaufen.')
@@ -165,7 +166,7 @@ const speichereBuchInBackend = async () => {
       neuerAutor.value = ''
       neuesGenre.value = ''
       neuesReleaseYear.value = new Date().getFullYear()
-      neueStars.value = 5
+      neueStars.value = 0
       neuesReview.value = ''
       neuesIsFavorite.value = false
       ausgewaehltesListId.value = ''
@@ -297,10 +298,9 @@ onMounted(() => {
               <input v-model="neuesGenre" type="text" placeholder="Genre" style="flex: 2" />
               <input v-model.number="neuesReleaseYear" type="number" placeholder="Jahr" style="flex: 1" />
             </div>
-            <div class="row">
-              <select v-model.number="neueStars">
-                <option v-for="n in 5" :key="n" :value="n">{{ n }} Sterne</option>
-              </select>
+            <div class="stars-input-row">
+              <StarRating v-model="neueStars" :size="32" />
+              <span class="stars-hint">{{ neueStars > 0 ? `${neueStars} Sterne` : 'Noch keine Bewertung' }}</span>
             </div>
             <div class="row">
               <select v-model="ausgewaehltesListId" class="select-list">
@@ -501,6 +501,17 @@ h1 {
 .form-group { display: flex; flex-direction: column; gap: 10px; }
 .row { display: flex; gap: 10px; }
 .select-list { width: 100%; }
+.stars-input-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 0;
+}
+.stars-hint {
+  font-size: 0.88rem;
+  color: #888;
+  min-width: 120px;
+}
 .form-group input, .form-group select, .form-group textarea {
   padding: 8px;
   border: 1px solid #ccc;

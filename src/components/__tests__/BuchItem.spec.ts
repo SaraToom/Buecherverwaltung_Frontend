@@ -22,7 +22,7 @@ describe('BuchItem', () => {
     expect(wrapper.text()).toContain('Franz Kafka')
     expect(wrapper.text()).toContain('Roman')
     expect(wrapper.text()).toContain('1925')
-    expect(wrapper.text()).toContain('4 ⭐')
+    expect(wrapper.text()).toContain('4/5')
     expect(wrapper.text()).toContain('Sehr eindringlich.')
   })
 

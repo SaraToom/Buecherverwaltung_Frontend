@@ -1,6 +1,17 @@
 <script setup lang="ts">
-// Props für die Buchinformationen
-defineProps(['id', 'titel', 'autor', 'genre', 'releaseYear', 'stars', 'review', 'isFavorite', 'bookList'])
+import StarRating from './StarRating.vue'
+
+defineProps<{
+  id: number
+  titel: string
+  autor: string
+  genre: string
+  releaseYear: number
+  stars: number
+  review: string
+  isFavorite: boolean
+  bookList: { id: number; name: string } | null
+}>()
 defineEmits(['delete-buch', 'toggle-favorite'])
 </script>
 
@@ -13,9 +24,12 @@ defineEmits(['delete-buch', 'toggle-favorite'])
     <p><strong>Autor:</strong> {{ autor }}</p>
     <p><strong>Genre:</strong> {{ genre }} ({{ releaseYear }})</p>
     <p v-if="bookList"><strong>Regal:</strong> <span class="list-badge">{{ bookList.name }}</span></p>
-    <p><strong>Bewertung:</strong> {{ stars }} ⭐</p>
+    <div class="stars-row">
+      <StarRating :modelValue="stars ?? 0" :readonly="true" :size="20" class="stars-on-card" />
+      <span class="stars-label">{{ stars && stars > 0 ? `${stars}/5` : 'Keine Bewertung' }}</span>
+    </div>
     <p v-if="review"><em>"{{ review }}"</em></p>
-    
+
     <div class="actions">
       <button @click="$emit('toggle-favorite')" class="btn-fav">
         {{ isFavorite ? 'Unfavorit' : 'Zu Favoriten' }}
@@ -27,7 +41,7 @@ defineEmits(['delete-buch', 'toggle-favorite'])
 
 <style scoped>
 .buch-karte {
-  border: 2px solid white; 
+  border: 2px solid white;
   padding: 15px;
   margin: 10px 0;
   border-radius: 10px;
@@ -42,6 +56,16 @@ defineEmits(['delete-buch', 'toggle-favorite'])
 .fav-icon {
   font-size: 1.5rem;
   color: gold;
+}
+.stars-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 4px 0;
+}
+.stars-label {
+  font-size: 0.85rem;
+  opacity: 0.85;
 }
 .actions {
   margin-top: 15px;
