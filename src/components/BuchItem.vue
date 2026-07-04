@@ -1,6 +1,11 @@
 <script setup lang="ts">
 import StarRating from './StarRating.vue'
 
+interface BookList {
+  id: number
+  name: string
+}
+
 defineProps<{
   id: number
   titel: string
@@ -10,9 +15,15 @@ defineProps<{
   stars: number
   review: string
   isFavorite: boolean
-  bookList: { id: number; name: string } | null
+  bookList: BookList | null
+  bookLists: BookList[]
 }>()
-defineEmits(['delete-buch', 'toggle-favorite'])
+
+defineEmits<{
+  'delete-buch': []
+  'toggle-favorite': []
+  'update-book-list': [listId: number | null]
+}>()
 </script>
 
 <template>
@@ -23,7 +34,20 @@ defineEmits(['delete-buch', 'toggle-favorite'])
     </div>
     <p><strong>Autor:</strong> {{ autor }}</p>
     <p><strong>Genre:</strong> {{ genre }} ({{ releaseYear }})</p>
-    <p v-if="bookList"><strong>Regal:</strong> <span class="list-badge">{{ bookList.name }}</span></p>
+    <div class="list-selector-row">
+      <label for="list-select" class="list-label"><strong>Regal:</strong></label>
+      <select
+        :id="`list-select-${id}`"
+        :value="bookList?.id ?? ''"
+        @change="(e) => $emit('update-book-list', e.target.value ? Number(e.target.value) : null)"
+        class="list-select"
+      >
+        <option value="">(Keinem Regal)</option>
+        <option v-for="list in bookLists" :key="list.id" :value="list.id">
+          {{ list.name }}
+        </option>
+      </select>
+    </div>
     <div class="stars-row">
       <StarRating :modelValue="stars ?? 0" :readonly="true" :size="20" class="stars-on-card" />
       <span class="stars-label">{{ stars && stars > 0 ? `${stars}/5` : 'Keine Bewertung' }}</span>
@@ -105,15 +129,35 @@ p {
 .btn-fav:hover {
   background-color: #F0F0F0;
 }
-.list-badge {
-  background-color: rgba(255, 255, 255, 0.25);
-  padding: 3px 8px;
-  border-radius: 12px;
-  font-size: 0.85rem;
-  font-weight: bold;
-  color: white;
+.list-selector-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0;
+}
+.list-label {
+  margin: 0;
+}
+.list-select {
+  padding: 6px 10px;
   border: 1px solid rgba(255, 255, 255, 0.4);
-  display: inline-block;
-  margin-left: 5px;
+  border-radius: 6px;
+  background-color: rgba(255, 255, 255, 0.15);
+  color: white;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.list-select:hover {
+  background-color: rgba(255, 255, 255, 0.25);
+}
+.list-select:focus {
+  outline: none;
+  background-color: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.7);
+}
+.list-select option {
+  background-color: var(--primary-color);
+  color: white;
 }
 </style>

@@ -126,9 +126,17 @@ const getBookCountForList = (listId: number) => {
 
 const gefilterteBuecher = computed(() => {
   let result = buecherListe.value
-  if (ausgewaehlteListeId.value !== null) {
+
+  // Favoriten-Filter
+  if (ausgewaehlteListeId.value === -1) {
+    result = result.filter(b => b.isFavorite)
+  }
+  // Normal Regal-Filter
+  else if (ausgewaehlteListeId.value !== null) {
     result = result.filter(b => b.bookList && b.bookList.id === ausgewaehlteListeId.value)
   }
+
+  // Suchfilter
   const q = suchbegriff.value.trim().toLowerCase()
   if (q) {
     result = result.filter(b => {
@@ -201,6 +209,20 @@ const toggleFavoritInBackend = async (buch: Buch) => {
   }
 }
 
+const updateBuchListInBackend = async (buchId: number, listId: number | null) => {
+  try {
+    const buch = buecherListe.value.find(b => b.id === buchId)
+    if (!buch) return
+    const response = await authFetch(`${backendUrl}/books/${buchId}`, {
+      method: 'PUT',
+      body: JSON.stringify({ ...buch, bookList: listId ? { id: listId } : null }),
+    })
+    if (response.ok) await ladeBuecherVonBackend()
+  } catch (error) {
+    console.error('Netzwerkfehler beim Ändern der Liste:', error)
+  }
+}
+
 onMounted(() => {
   ladeBuecherVonBackend()
   ladeListenVonBackend()
@@ -263,6 +285,15 @@ onMounted(() => {
           </div>
 
           <div
+            class="list-item"
+            :class="{ active: ausgewaehlteListeId === -1 }"
+            @click="ausgewaehlteListeId = -1"
+          >
+            <span>⭐ Favoriten</span>
+            <span class="count-badge">{{ buecherListe.filter(b => b.isFavorite).length }}</span>
+          </div>
+
+          <div
             v-for="list in listen"
             :key="list.id"
             class="list-item"
@@ -321,7 +352,13 @@ onMounted(() => {
         <hr />
 
         <h2>
-          {{ ausgewaehlteListeId === null ? 'Deine Bücher' : 'Bücher im Regal: ' + listen.find(l => l.id === ausgewaehlteListeId)?.name }}
+          {{
+            ausgewaehlteListeId === null
+              ? 'Deine Bücher'
+              : ausgewaehlteListeId === -1
+                ? '⭐ Favoriten'
+                : 'Bücher im Regal: ' + listen.find(l => l.id === ausgewaehlteListeId)?.name
+          }}
         </h2>
 
         <p v-if="gefilterteBuecher.length === 0" style="text-align: center; color: #666; margin-top: 20px;">
@@ -340,8 +377,10 @@ onMounted(() => {
           :review="buch.review"
           :isFavorite="buch.isFavorite"
           :bookList="buch.bookList"
+          :bookLists="listen"
           @delete-buch="deleteBuchVonBackend(buch.id)"
           @toggle-favorite="toggleFavoritInBackend(buch)"
+          @update-book-list="updateBuchListInBackend(buch.id, $event)"
         />
       </main>
     </div>
