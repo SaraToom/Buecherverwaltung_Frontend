@@ -45,13 +45,21 @@ defineEmits(['delete-buch', 'toggle-favorite'])
   padding: 15px;
   margin: 10px 0;
   border-radius: 10px;
-  background-color: #D5B895;
+  background-color: var(--primary-color);
   color: white;
 }
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+h3 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+p {
+  margin: 6px 0;
+  font-size: 0.9rem;
 }
 .fav-icon {
   font-size: 1.5rem;
@@ -73,18 +81,29 @@ defineEmits(['delete-buch', 'toggle-favorite'])
   gap: 10px;
 }
 .actions button {
-  padding: 5px 10px;
+  padding: 6px 12px;
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
 }
 .btn-delete {
-  background-color: #ff4d4d;
+  background-color: var(--danger-color);
   color: white;
+}
+.btn-delete:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
 }
 .btn-fav {
   background-color: white;
-  color: #D5B895;
+  color: var(--primary-color);
+  font-weight: bold;
+}
+.btn-fav:hover {
+  background-color: #F0F0F0;
 }
 .list-badge {
   background-color: rgba(255, 255, 255, 0.25);

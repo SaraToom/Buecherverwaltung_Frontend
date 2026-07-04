@@ -1,0 +1,42 @@
+:root {
+  /* Color Palette */
+  --color-toasted-cocoa: #5c4e43;
+  --color-midnight-espresso: #552015;
+  --color-vintage-clay: #9d675f;
+  --color-rust-petal: #7B383C;
+
+  /* Semantic Colors */
+  --primary-color: var(--color-toasted-cocoa);
+  --primary-dark: var(--color-midnight-espresso);
+  --secondary-color: var(--color-rust-petal);
+  --dark-bg: var(--color-midnight-espresso);
+  --danger-color: var(--color-rust-petal);
+
+  /* UI Colors */
+  --bg-primary: #FFFFFF;
+  --bg-secondary: var(--color-vintage-clay);
+  --text-primary: var(--color-midnight-espresso);
+  --text-secondary: #4a3d33;
+  --text-light: #8B7C72;
+  --border-light: #C8BFBA;
+  --border-normal: #B8ADAA;
+  --hover-bg: #F8F6F3;
+  --active-bg: var(--color-rust-petal);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  font-family: Arial, sans-serif;
+}
+
+#app {
+  background-color: var(--bg-secondary);
+  min-height: 100vh;
+}

@@ -98,17 +98,17 @@ function onClick() {
 }
 .star-svg {
   display: block;
-  filter: drop-shadow(0 1px 1px rgba(0,0,0,0.08));
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.08));
 }
 .star-empty {
   fill: #e8ddd0;
-  stroke: #c9b99f;
+  stroke: #bfb0a0;
   stroke-width: 0.8;
   stroke-linejoin: round;
 }
 .star-filled {
   fill: #F5C518;
-  stroke: #e0a800;
+  stroke: #d4a800;
   stroke-width: 0.5;
   stroke-linejoin: round;
 }
