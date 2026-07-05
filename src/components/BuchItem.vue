@@ -39,7 +39,7 @@ defineEmits<{
       <select
         :id="`list-select-${id}`"
         :value="bookList?.id ?? ''"
-        @change="(e) => $emit('update-book-list', e.target.value ? Number(e.target.value) : null)"
+        @change="(e) => $emit('update-book-list', (e.target as HTMLSelectElement).value ? Number((e.target as HTMLSelectElement).value) : null)"
         class="list-select"
       >
         <option value="">(Keinem Regal)</option>

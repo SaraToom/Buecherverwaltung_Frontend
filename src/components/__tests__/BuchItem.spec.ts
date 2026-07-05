@@ -12,6 +12,10 @@ const baseProps = {
   review: 'Sehr eindringlich.',
   isFavorite: false,
   bookList: null,
+  bookLists: [
+    { id: 1, name: 'Möchte ich lesen' },
+    { id: 2, name: 'Aktuell' },
+  ],
 }
 
 describe('BuchItem', () => {
@@ -34,14 +38,17 @@ describe('BuchItem', () => {
     expect(wrapperMitFavorit.find('.fav-icon').exists()).toBe(true)
   })
 
-  it('zeigt das Regal-Badge nur wenn eine bookList übergeben wird', () => {
+  it('zeigt das Regal-Select mit der aktuellen bookList', () => {
     const wrapperOhneListe = mount(BuchItem, { props: baseProps })
-    expect(wrapperOhneListe.find('.list-badge').exists()).toBe(false)
+    const selectOhneListe = wrapperOhneListe.find('.list-select')
+    expect(selectOhneListe.exists()).toBe(true)
+    expect((selectOhneListe.element as HTMLSelectElement).value).toBe('')
 
     const wrapperMitListe = mount(BuchItem, {
       props: { ...baseProps, bookList: { id: 1, name: 'Aktuell' } },
     })
-    expect(wrapperMitListe.find('.list-badge').text()).toBe('Aktuell')
+    const selectMitListe = wrapperMitListe.find('.list-select')
+    expect((selectMitListe.element as HTMLSelectElement).value).toBe('1')
   })
 
   it('beschriftet den Favoriten-Button je nach Status unterschiedlich', () => {
