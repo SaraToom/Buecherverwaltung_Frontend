@@ -5,12 +5,12 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "run-p type-check \"build-only {@}\" -- && npm run copy-redirects",
+    "build": "run-p type-check \"build-only {@}\" --",
     "preview": "vite preview",
+    "start": "node server.js",
     "test:unit": "vitest",
     "build-only": "vite build",
     "type-check": "vue-tsc --build",
-    "copy-redirects": "cp public/_redirects dist/_redirects",
     "lint": "run-s lint:*",
     "lint:oxlint": "oxlint . --fix",
     "lint:eslint": "eslint . --fix --cache"
